@@ -1,35 +1,50 @@
 # CampusTalk
 
-Campus discussion and community platform for the Web Programming project, Fall 2026.
+Campus discussion and community platform for the Web Programming project, Fall 2026. Students can post in categories, comment, react, bookmark and report content, and a moderator handles reports and announcements.
 
 ## Technologies
 
 - React (Vite) with JavaScript
 - Redux Toolkit for login state
 - React Router
-- Bootstrap
+- Bootstrap, with a custom FAST-NUCES color theme and Poppins and Roboto fonts
 - Node.js, Express and a database (backend, in progress)
 
 ## Current Status
 
 Done:
 - Project setup with React (Vite) and Bootstrap
-- Folder structure for the frontend
-- Data model types (`client/src/types/models.ts`)
-- Mock API service with sample data (`client/src/services`)
-- API contract for the backend (`docs/API_CONTRACT.md`)
+- Folder structure, data model types and a mock API service with sample data
+- Redux store and auth slice (login saved in Local Storage)
 - Navbar, routing and protected routes (student and moderator)
 - Login and signup pages with form validation
 - Profile edit page
 - FAST-NUCES color theme (blue, sky blue, green, gold) and Roboto font
-
+- Design refresh: Poppins and Roboto fonts, white navbar and navy footer
+- Feed page with post cards and loading, empty and error states
 
 Not yet:
-- Login, signup and profile
-- Feed, posts, comments and reactions
-- Bookmarks, reports and notifications
-- Moderator pages
+- Search, category filter, sort and pagination
+- Top posts and weekly trends
+- Create, edit and delete posts, post details and comments
+- Likes and dislikes, bookmarks
+- Reports, notifications and My Activity
+- Moderator pages (reports, categories, announcements)
 - Connecting the frontend to the backend
+
+## Run the frontend
+
+```
+cd client
+npm install
+npm run dev
+```
+
+Copy `client/.env.example` to `client/.env`. With `VITE_USE_MOCK=true` the app uses built-in sample data, so no backend is needed.
+
+Sample accounts (fictional):
+- Student: `ali@campustalk.test` / `Student123`
+- Moderator: `moderator@campustalk.test` / `Moderator123`
 
 ## Documentation
 
