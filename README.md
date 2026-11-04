@@ -19,6 +19,9 @@ Done:
 - Mock API service with sample data (`client/src/services`)
 - API contract for the backend (`docs/API_CONTRACT.md`)
 - Navbar, routing and protected routes (student and moderator)
+- Login and signup pages with form validation
+- Profile edit page
+- FAST-NUCES color theme (blue, sky blue, green, gold) and Roboto font
 
 
 Not yet:

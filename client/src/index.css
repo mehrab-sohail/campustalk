@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* FAST-NUCES brand colors, applied to Bootstrap */
+:root {
+  --campus-blue: #16498c;
+  --campus-blue-dark: #0f3566;
+  --campus-sky: #0093dd;
+  --campus-green: #048c34;
+  --campus-gold: #f2b705;
+
+  --bs-primary: #16498c;
+  --bs-primary-rgb: 22, 73, 140;
+  --bs-success: #048c34;
+  --bs-success-rgb: 4, 140, 52;
+  --bs-info: #0093dd;
+  --bs-info-rgb: 0, 147, 221;
+  --bs-warning: #f2b705;
+  --bs-warning-rgb: 242, 183, 5;
+
+  --bs-link-color: #16498c;
+  --bs-link-color-rgb: 22, 73, 140;
+  --bs-link-hover-color: #0093dd;
+  --bs-link-hover-color-rgb: 0, 147, 221;
+  --bs-heading-color: #16498c;
+
+  --bs-body-font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bs-body-bg: #f5f8fc;
+}
+
+/* Navbar: deep blue with a gold line under it */
+.navbar {
+  border-bottom: 3px solid var(--campus-gold);
+}
+
+/* Buttons */
+.btn-primary {
+  --bs-btn-bg: #16498c;
+  --bs-btn-border-color: #16498c;
+  --bs-btn-hover-bg: #0f3566;
+  --bs-btn-hover-border-color: #0f3566;
+  --bs-btn-active-bg: #0c2a50;
+  --bs-btn-active-border-color: #0c2a50;
+  --bs-btn-disabled-bg: #16498c;
+  --bs-btn-disabled-border-color: #16498c;
+  --bs-btn-focus-shadow-rgb: 22, 73, 140;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #16498c;
+  --bs-btn-border-color: #16498c;
+  --bs-btn-hover-bg: #16498c;
+  --bs-btn-hover-border-color: #16498c;
+  --bs-btn-active-bg: #16498c;
+  --bs-btn-active-border-color: #16498c;
+  --bs-btn-disabled-color: #16498c;
+  --bs-btn-disabled-border-color: #16498c;
+}
+
+.btn-success {
+  --bs-btn-bg: #048c34;
+  --bs-btn-border-color: #048c34;
+  --bs-btn-hover-bg: #037a2d;
+  --bs-btn-hover-border-color: #037a2d;
+  --bs-btn-active-bg: #026826;
+  --bs-btn-active-border-color: #026826;
+}
+
+/* Form fields */
+.form-control:focus,
+.form-select:focus {
+  border-color: #0093dd;
+  box-shadow: 0 0 0 0.2rem rgba(0, 147, 221, 0.25);
+}
+
+/* Cards (used for posts later) */
+.card {
+  border: 0;
+  box-shadow: 0 1px 4px rgba(22, 73, 140, 0.15);
+}
