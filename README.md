@@ -18,6 +18,8 @@ Done:
 - Data model types (`client/src/types/models.ts`)
 - Mock API service with sample data (`client/src/services`)
 - API contract for the backend (`docs/API_CONTRACT.md`)
+- Navbar, routing and protected routes (student and moderator)
+
 
 Not yet:
 - Login, signup and profile
