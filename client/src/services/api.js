@@ -1,5 +1,4 @@
-import { getDb } from './mockData.js'
-
+import { getDb, saveDb } from './mockData.js'
 /**
  * @typedef {import('../types/models').Post} Post
  * @typedef {import('../types/models').Category} Category
@@ -117,4 +116,61 @@ export async function getPosts({ page = 1, pageSize = 10 } = {}) {
     })
   }
   return request('GET', `/posts${toQuery({ page, pageSize })}`)
+}
+
+// Builds an Error the same way request() does, for the mock server.
+function fail(message, status = 400, fieldErrors = {}) {
+  const error = new Error(message)
+  error.status = status
+  error.fieldErrors = fieldErrors
+  return error
+}
+
+// The password is never sent to the frontend.
+function publicUser(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    bio: user.bio,
+    createdAt: user.createdAt,
+  }
+}
+
+/** @returns {Promise<import('../types/models').AuthResult>} */
+export async function login({ email, password }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const user = db.users.find(
+      (u) => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password
+    )
+    if (!user) throw fail('Wrong email or password', 401)
+    return delay({ user: publicUser(user), token: `mock-token-${user.id}` })
+  }
+  return request('POST', '/auth/login', { email: email.trim(), password })
+}
+
+/** @returns {Promise<import('../types/models').AuthResult>} */
+export async function signup({ name, email, password }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const taken = db.users.some((u) => u.email.toLowerCase() === email.trim().toLowerCase())
+    if (taken) {
+      throw fail('That email is already registered', 409, { email: 'That email is already registered' })
+    }
+    const user = {
+      id: `u${Date.now()}`,
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      role: 'student',
+      bio: '',
+      createdAt: new Date().toISOString(),
+    }
+    db.users.push(user)
+    saveDb(db)
+    return delay({ user: publicUser(user), token: `mock-token-${user.id}` })
+  }
+  return request('POST', '/auth/signup', { name: name.trim(), email: email.trim(), password })
 }
