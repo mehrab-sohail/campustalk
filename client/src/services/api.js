@@ -174,3 +174,27 @@ export async function signup({ name, email, password }) {
   }
   return request('POST', '/auth/signup', { name: name.trim(), email: email.trim(), password })
 }
+/** @returns {Promise<import('../types/models').User>} */
+export async function getProfile() {
+  if (USE_MOCK) {
+    const db = getDb()
+    const user = db.users.find((u) => u.id === getCurrentUserId())
+    if (!user) throw fail('Please log in again', 401)
+    return delay(publicUser(user))
+  }
+  return request('GET', '/users/me')
+}
+
+/** @returns {Promise<import('../types/models').User>} */
+export async function updateProfile({ name, bio }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const user = db.users.find((u) => u.id === getCurrentUserId())
+    if (!user) throw fail('Please log in again', 401)
+    user.name = name.trim()
+    user.bio = bio.trim()
+    saveDb(db)
+    return delay(publicUser(user))
+  }
+  return request('PUT', '/users/me', { name: name.trim(), bio: bio.trim() })
+}
