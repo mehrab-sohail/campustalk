@@ -39,7 +39,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      <footer className="border-top py-3 text-center text-muted small">
+      <footer className="site-footer py-3 text-center small">
         CampusTalk is a student project for Web Programming, Fall 2026. It is not an official FAST-NUCES website.
       </footer>
     </>

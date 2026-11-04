@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap');
 
 /* FAST-NUCES brand colors, applied to Bootstrap */
 :root {
@@ -21,18 +21,110 @@
   --bs-link-color-rgb: 22, 73, 140;
   --bs-link-hover-color: #0093dd;
   --bs-link-hover-color-rgb: 0, 147, 221;
-  --bs-heading-color: #16498c;
+  --bs-heading-color: #0f3566;
 
   --bs-body-font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --bs-body-bg: #f5f8fc;
+  --bs-body-bg: #f4f7fb;
 }
 
-/* Navbar: deep blue with a gold line under it */
-.navbar {
+/* Fonts: Poppins for headings, buttons and menu, Roboto for text */
+h1, h2, h3, h4, h5, h6,
+.navbar-brand,
+.btn {
+  font-family: 'Poppins', 'Roboto', sans-serif;
+}
+
+/* Keeps the footer at the bottom on short pages */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root > main {
+  flex: 1;
+}
+
+/* Navbar: white, like the university site */
+.navbar-campus {
+  background: #ffffff;
   border-bottom: 3px solid var(--campus-gold);
+  box-shadow: 0 2px 10px rgba(22, 73, 140, 0.08);
+}
+
+.navbar-campus .navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--campus-blue);
+}
+
+.navbar-campus .navbar-brand span {
+  color: var(--campus-sky);
+}
+
+.navbar-campus .nav-link {
+  color: #1d2b44;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-bottom: 3px solid transparent;
+}
+
+.navbar-campus .nav-link:hover {
+  color: var(--campus-sky);
+}
+
+.navbar-campus .nav-link.active {
+  color: var(--campus-blue);
+  border-bottom-color: var(--campus-sky);
+}
+
+.navbar-campus .navbar-text {
+  color: #1d2b44;
+  font-weight: 500;
+}
+
+/* Hero banner on the feed */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  color: #ffffff;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #16498c 0%, #0093dd 100%);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: -70px;
+  right: -50px;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  background: rgba(242, 183, 5, 0.3);
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero h2 {
+  color: #ffffff;
+}
+
+.hero .btn-light {
+  color: var(--campus-blue);
+  font-weight: 600;
 }
 
 /* Buttons */
+.btn {
+  border-radius: 50rem;
+  font-weight: 500;
+}
+
 .btn-primary {
   --bs-btn-bg: #16498c;
   --bs-btn-border-color: #16498c;
@@ -72,8 +164,35 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 147, 221, 0.25);
 }
 
-/* Cards (used for posts later) */
+/* Cards and post cards */
 .card {
   border: 0;
-  box-shadow: 0 1px 4px rgba(22, 73, 140, 0.15);
+  border-radius: 0.9rem;
+  box-shadow: 0 2px 8px rgba(22, 73, 140, 0.1);
+}
+
+.cat-0 { --cat-color: #16498c; }
+.cat-1 { --cat-color: #0093dd; }
+.cat-2 { --cat-color: #048c34; }
+.cat-3 { --cat-color: #b88a00; }
+
+.post-card {
+  border-left: 5px solid var(--cat-color);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(22, 73, 140, 0.18);
+}
+
+.cat-badge {
+  background-color: var(--cat-color);
+  color: #ffffff;
+}
+
+/* Footer */
+.site-footer {
+  background: var(--campus-blue-dark);
+  color: #dbe7f5;
 }

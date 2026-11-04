@@ -10,7 +10,7 @@ function Navbar() {
   const [open, setOpen] = useState(false)
 
   const closeMenu = () => setOpen(false)
-  const linkClass = ({ isActive }) => `nav-link${isActive ? ' active fw-bold' : ''}`
+  const linkClass = ({ isActive }) => `nav-link${isActive ? ' active' : ''}`
 
   function handleLogout() {
     dispatch(logoutUser())
@@ -19,10 +19,10 @@ function Navbar() {
   }
 
   return (
-    <nav className="navbar navbar-expand-md navbar-dark bg-primary mb-4">
+    <nav className="navbar navbar-expand-md navbar-light navbar-campus mb-4">
       <div className="container">
         <Link className="navbar-brand" to="/" onClick={closeMenu}>
-          CampusTalk
+          Campus<span>Talk</span>
         </Link>
 
         <button
@@ -69,7 +69,7 @@ function Navbar() {
                   <span className="navbar-text me-md-3">{user.name}</span>
                 </li>
                 <li className="nav-item">
-                  <button className="btn btn-light btn-sm" onClick={handleLogout}>Logout</button>
+                  <button className="btn btn-outline-primary btn-sm" onClick={handleLogout}>Logout</button>
                 </li>
               </>
             ) : (
