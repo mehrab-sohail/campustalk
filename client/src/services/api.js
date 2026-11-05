@@ -215,3 +215,30 @@ export async function updateProfile({ name, bio }) {
   }
   return request('PUT', '/users/me', { name: name.trim(), bio: bio.trim() })
 }
+
+/**
+ * Top posts by reaction count (likes + dislikes).
+ * range "week" = posts from the last 7 days, range "all" = every post.
+ * @param {{ range?: 'week' | 'all', limit?: number }} params
+ * @returns {Promise<Post[]>}
+ */
+export async function getTopPosts({ range = 'week', limit = 5 } = {}) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+
+    const top = db.posts
+      .filter((post) => !post.hidden)
+      .filter((post) => range !== 'week' || new Date(post.createdAt).getTime() >= weekAgo)
+      .map((post) => shapePost(db, post))
+
+    // Most reactions first; posts with the same count stay newest first.
+    top.sort(
+      (a, b) =>
+        b.likes + b.dislikes - (a.likes + a.dislikes) || b.createdAt.localeCompare(a.createdAt)
+    )
+
+    return delay(top.slice(0, limit))
+  }
+  return request('GET', `/posts/top${toQuery({ range, limit })}`)
+}

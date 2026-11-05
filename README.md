@@ -22,10 +22,11 @@ Done:
 - FAST-NUCES color theme (blue, sky blue, green, gold) and Roboto font
 - Design refresh: Poppins and Roboto fonts, white navbar and navy footer
 - Feed page with post cards and loading, empty and error states
+- Feed search, category filter, sort (newest or most liked) and pagination
+- Top posts sidebar with this week and all time views
+- Polished styling for the search bar, post cards and pagination
 
 Not yet:
-- Search, category filter, sort and pagination
-- Top posts and weekly trends
 - Create, edit and delete posts, post details and comments
 - Likes and dislikes, bookmarks
 - Reports, notifications and My Activity

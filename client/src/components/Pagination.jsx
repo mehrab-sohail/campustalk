@@ -5,17 +5,22 @@ function Pagination({ page, totalPages, onPageChange }) {
   const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
 
   return (
-    <nav aria-label="Feed pages">
+    <nav aria-label="Feed pages" className="mt-4">
       <ul className="pagination justify-content-center">
         <li className={`page-item${page === 1 ? ' disabled' : ''}`}>
           <button type="button" className="page-link" disabled={page === 1} onClick={() => onPageChange(page - 1)}>
-            Previous
+            &lsaquo; Previous
           </button>
         </li>
 
         {pages.map((number) => (
           <li key={number} className={`page-item${number === page ? ' active' : ''}`}>
-            <button type="button" className="page-link" onClick={() => onPageChange(number)}>
+            <button
+              type="button"
+              className="page-link"
+              aria-current={number === page ? 'page' : undefined}
+              onClick={() => onPageChange(number)}
+            >
               {number}
             </button>
           </li>
@@ -23,7 +28,7 @@ function Pagination({ page, totalPages, onPageChange }) {
 
         <li className={`page-item${page === totalPages ? ' disabled' : ''}`}>
           <button type="button" className="page-link" disabled={page === totalPages} onClick={() => onPageChange(page + 1)}>
-            Next
+            Next &rsaquo;
           </button>
         </li>
       </ul>
