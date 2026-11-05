@@ -15,17 +15,20 @@ function SearchFilterBar({ search, categoryId, sort, categories, onSearch, onCat
   }
 
   return (
-    <form className="card card-body mb-4" onSubmit={handleSubmit}>
+    <form className="card card-body mb-4 search-bar" onSubmit={handleSubmit}>
       <div className="row g-2">
-        <div className="col-12 col-md-5">
-          <input
-            type="search"
-            className="form-control"
-            placeholder="Search by title or keyword"
-            aria-label="Search posts"
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-          />
+        <div className="col-12 col-md-6">
+          <div className="input-group">
+            <input
+              type="search"
+              className="form-control"
+              placeholder="Search by title or keyword"
+              aria-label="Search posts"
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+            />
+            <button type="submit" className="btn btn-primary">Search</button>
+          </div>
         </div>
 
         <div className="col-6 col-md-3">
@@ -44,7 +47,7 @@ function SearchFilterBar({ search, categoryId, sort, categories, onSearch, onCat
           </select>
         </div>
 
-        <div className="col-6 col-md-2">
+        <div className="col-6 col-md-3">
           <select
             className="form-select"
             aria-label="Sort posts"
@@ -55,11 +58,12 @@ function SearchFilterBar({ search, categoryId, sort, categories, onSearch, onCat
             <option value="liked">Most liked</option>
           </select>
         </div>
+      </div>
 
-        <div className="col-12 col-md-2 d-flex gap-2">
-          <button type="submit" className="btn btn-primary flex-fill">Search</button>
-          <button type="button" className="btn btn-outline-primary" onClick={handleReset}>Reset</button>
-        </div>
+      <div className="mt-2">
+        <button type="button" className="btn btn-link btn-sm p-0 reset-link" onClick={handleReset}>
+          Reset search and filters
+        </button>
       </div>
     </form>
   )

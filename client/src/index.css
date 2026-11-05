@@ -196,3 +196,140 @@ h1, h2, h3, h4, h5, h6,
   background: var(--campus-blue-dark);
   color: #dbe7f5;
 }
+
+/* Top posts sidebar */
+.top-posts {
+  position: sticky;
+  top: 1rem;
+  border-top: 4px solid var(--bs-warning, #f2b705);
+}
+
+.top-post-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #e3e9f2;
+}
+
+.top-post-item:last-child {
+  border-bottom: 0;
+}
+
+.top-rank {
+  flex: 0 0 auto;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: #16498c;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ---------- Style polish: fonts, search bar, post cards, pagination ---------- */
+
+body {
+  line-height: 1.65;
+}
+
+h1, h2, h3, h4, h5, h6,
+.card-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Search bar: rounded fields that match the pill buttons */
+.search-bar {
+  border: 0;
+  box-shadow: 0 6px 20px rgba(22, 73, 140, 0.08);
+}
+
+.search-bar .form-control,
+.search-bar .form-select {
+  border-color: #d5dfee;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+.search-bar .form-select {
+  border-radius: 50rem;
+  padding-left: 1.1rem;
+}
+
+.search-bar .input-group > .form-control {
+  border-top-left-radius: 50rem;
+  border-bottom-left-radius: 50rem;
+  padding-left: 1.1rem;
+}
+
+.search-bar .input-group > .btn {
+  padding-left: 1.4rem;
+  padding-right: 1.4rem;
+}
+
+.reset-link {
+  color: #16498c;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.reset-link:hover {
+  color: #0093dd;
+  text-decoration: underline;
+}
+
+/* Post cards: clearer titles and softer text */
+.post-card .card-title a {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  color: #0f3566;
+}
+
+.post-card .card-title a:hover {
+  color: #0093dd;
+}
+
+.post-card .card-text {
+  color: #44526b;
+}
+
+/* Pagination: round buttons in the brand colors */
+.pagination {
+  --bs-pagination-color: #16498c;
+  --bs-pagination-bg: #ffffff;
+  --bs-pagination-border-color: #d5dfee;
+  --bs-pagination-hover-color: #ffffff;
+  --bs-pagination-hover-bg: #0093dd;
+  --bs-pagination-hover-border-color: #0093dd;
+  --bs-pagination-focus-color: #16498c;
+  --bs-pagination-focus-bg: #e8f1fb;
+  --bs-pagination-focus-box-shadow: 0 0 0 0.2rem rgba(0, 147, 221, 0.25);
+  --bs-pagination-active-color: #ffffff;
+  --bs-pagination-active-bg: #16498c;
+  --bs-pagination-active-border-color: #16498c;
+  --bs-pagination-disabled-color: #9aa8bd;
+  --bs-pagination-disabled-bg: #f4f7fb;
+  --bs-pagination-disabled-border-color: #e3e9f2;
+  gap: 0.4rem;
+}
+
+.pagination .page-item .page-link {
+  border-radius: 50rem;
+  margin-left: 0;
+  min-width: 2.6rem;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+}
+
+.pagination .page-item.active .page-link {
+  box-shadow: 0 4px 10px rgba(22, 73, 140, 0.3);
+}
