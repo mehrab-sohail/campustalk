@@ -96,26 +96,42 @@ export async function getCategories(includeArchived = false) {
 }
 
 /**
- * @param {{ page?: number, pageSize?: number }} params
+ * @param {{ page?: number, pageSize?: number, search?: string, categoryId?: string, sort?: 'newest' | 'liked' }} params
  * @returns {Promise<PostPage>}
  */
-export async function getPosts({ page = 1, pageSize = 10 } = {}) {
+export async function getPosts({ page = 1, pageSize = 10, search = '', categoryId = '', sort = 'newest' } = {}) {
   if (USE_MOCK) {
     const db = getDb()
-    const visible = db.posts
+    const text = search.trim().toLowerCase()
+
+    const matching = db.posts
       .filter((post) => !post.hidden)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .filter((post) => !categoryId || post.categoryId === categoryId)
+      .filter(
+        (post) =>
+          !text ||
+          post.title.toLowerCase().includes(text) ||
+          post.body.toLowerCase().includes(text)
+      )
+      .map((post) => shapePost(db, post))
+
+    // "liked" sorts by like count; posts with the same count stay newest first.
+    matching.sort((a, b) => {
+      if (sort === 'liked' && b.likes !== a.likes) return b.likes - a.likes
+      return b.createdAt.localeCompare(a.createdAt)
+    })
+
     const start = (page - 1) * pageSize
 
     return delay({
-      items: visible.slice(start, start + pageSize).map((post) => shapePost(db, post)),
+      items: matching.slice(start, start + pageSize),
       page,
       pageSize,
-      total: visible.length,
-      totalPages: Math.max(1, Math.ceil(visible.length / pageSize)),
+      total: matching.length,
+      totalPages: Math.max(1, Math.ceil(matching.length / pageSize)),
     })
   }
-  return request('GET', `/posts${toQuery({ page, pageSize })}`)
+  return request('GET', `/posts${toQuery({ page, pageSize, search: search.trim(), categoryId, sort })}`)
 }
 
 // Builds an Error the same way request() does, for the mock server.
@@ -174,6 +190,7 @@ export async function signup({ name, email, password }) {
   }
   return request('POST', '/auth/signup', { name: name.trim(), email: email.trim(), password })
 }
+
 /** @returns {Promise<import('../types/models').User>} */
 export async function getProfile() {
   if (USE_MOCK) {
