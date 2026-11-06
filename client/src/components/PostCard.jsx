@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString('en-GB', {
@@ -16,6 +17,8 @@ function categoryColorIndex(categoryId) {
 }
 
 function PostCard({ post }) {
+  const user = useSelector((state) => state.auth.user)
+  const isOwner = user && user.id === post.author.id
   const preview = post.body.length > 160 ? `${post.body.slice(0, 160)}...` : post.body
 
   return (
@@ -34,11 +37,16 @@ function PostCard({ post }) {
 
         <p className="card-text">{preview}</p>
 
-        <div className="d-flex flex-wrap gap-3 text-muted small">
+        <div className="d-flex flex-wrap align-items-center gap-3 text-muted small">
           <span>By {post.author.name}</span>
           <span>{post.likes} likes</span>
           <span>{post.dislikes} dislikes</span>
           <span>{post.commentCount} comments</span>
+          {isOwner && (
+            <Link to={`/posts/${post.id}/edit`} className="btn btn-outline-primary btn-sm ms-auto">
+              Edit
+            </Link>
+          )}
         </div>
       </div>
     </div>

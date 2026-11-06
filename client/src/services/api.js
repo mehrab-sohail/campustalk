@@ -1,4 +1,5 @@
 import { getDb, saveDb } from './mockData.js'
+import { validatePost } from '../utils/postValidators.js'
 /**
  * @typedef {import('../types/models').Post} Post
  * @typedef {import('../types/models').Category} Category
@@ -241,4 +242,93 @@ export async function getTopPosts({ range = 'week', limit = 5 } = {}) {
     return delay(top.slice(0, limit))
   }
   return request('GET', `/posts/top${toQuery({ range, limit })}`)
+}
+
+// Checks post fields like the real server will. Throws a 400 error with fieldErrors.
+function checkPostFields(db, fields, allowedCategoryId) {
+  const errors = validatePost(fields)
+  if (!errors.categoryId) {
+    const category = db.categories.find((c) => c.id === fields.categoryId)
+    const usable = category && (!category.archived || category.id === allowedCategoryId)
+    if (!usable) errors.categoryId = 'Please choose an available category'
+  }
+  if (Object.keys(errors).length > 0) {
+    throw fail('Please fix the highlighted fields', 400, errors)
+  }
+}
+
+/** @returns {Promise<Post>} */
+export async function getPost(id) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const post = db.posts.find((p) => p.id === id && !p.hidden)
+    if (!post) throw fail('Post not found', 404)
+    return delay(shapePost(db, post))
+  }
+  return request('GET', `/posts/${id}`)
+}
+
+/** @returns {Promise<Post>} */
+export async function createPost({ title, body, categoryId }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+    checkPostFields(db, { title, body, categoryId })
+
+    const now = new Date().toISOString()
+    const post = {
+      id: `p${Date.now()}`,
+      title: title.trim(),
+      body: body.trim(),
+      categoryId,
+      authorId: userId,
+      hidden: false,
+      createdAt: now,
+      updatedAt: now,
+    }
+    db.posts.push(post)
+    saveDb(db)
+    return delay(shapePost(db, post))
+  }
+  return request('POST', '/posts', { title: title.trim(), body: body.trim(), categoryId })
+}
+
+/** @returns {Promise<Post>} */
+export async function updatePost(id, { title, body, categoryId }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const post = db.posts.find((p) => p.id === id)
+    if (!post) throw fail('Post not found', 404)
+    if (post.authorId !== getCurrentUserId()) throw fail('You can only edit your own posts', 403)
+    checkPostFields(db, { title, body, categoryId }, post.categoryId)
+
+    post.title = title.trim()
+    post.body = body.trim()
+    post.categoryId = categoryId
+    post.updatedAt = new Date().toISOString()
+    saveDb(db)
+    return delay(shapePost(db, post))
+  }
+  return request('PUT', `/posts/${id}`, { title: title.trim(), body: body.trim(), categoryId })
+}
+
+// Deleting a post also removes everything that belongs to it.
+export async function deletePost(id) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const post = db.posts.find((p) => p.id === id)
+    if (!post) throw fail('Post not found', 404)
+    if (post.authorId !== getCurrentUserId()) throw fail('You can only delete your own posts', 403)
+
+    db.posts = db.posts.filter((p) => p.id !== id)
+    db.comments = db.comments.filter((c) => c.postId !== id)
+    db.reactions = db.reactions.filter((r) => r.postId !== id)
+    db.bookmarks = db.bookmarks.filter((b) => b.postId !== id)
+    db.reports = db.reports.filter((r) => r.postId !== id)
+    db.notifications = db.notifications.filter((n) => n.postId !== id)
+    saveDb(db)
+    return delay(null)
+  }
+  return request('DELETE', `/posts/${id}`)
 }

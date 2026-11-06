@@ -1,0 +1,32 @@
+// Each function returns an error message, or '' when the value is fine.
+export function validateTitle(title) {
+  const value = title.trim()
+  if (!value) return 'Title is required'
+  if (value.length > 120) return 'Title must be 120 characters or less'
+  return ''
+}
+
+export function validatePostBody(body) {
+  const value = body.trim()
+  if (!value) return 'Post text is required'
+  if (value.length > 5000) return 'Post text must be 5000 characters or less'
+  return ''
+}
+
+export function validateCategory(categoryId) {
+  if (!categoryId) return 'Please choose a category'
+  return ''
+}
+
+// Returns an object with only the fields that have a problem, like { title: '...' }.
+export function validatePost({ title, body, categoryId }) {
+  const errors = {}
+  const titleError = validateTitle(title)
+  const bodyError = validatePostBody(body)
+  const categoryError = validateCategory(categoryId)
+
+  if (titleError) errors.title = titleError
+  if (bodyError) errors.body = bodyError
+  if (categoryError) errors.categoryId = categoryError
+  return errors
+}
