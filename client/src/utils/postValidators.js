@@ -30,3 +30,11 @@ export function validatePost({ title, body, categoryId }) {
   if (categoryError) errors.categoryId = categoryError
   return errors
 }
+
+
+export function validateCommentBody(body) {
+  const value = body.trim()
+  if (!value) return 'Comment text is required'
+  if (value.length > 1000) return 'Comment must be 1000 characters or less'
+  return ''
+}
