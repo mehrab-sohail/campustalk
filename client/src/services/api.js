@@ -439,3 +439,87 @@ export async function deleteComment(commentId) {
   }
   return request('DELETE', `/comments/${commentId}`)
 }
+
+
+// Counts and the current user's reaction for one post, in the shape the API contract describes.
+function reactionSummary(db, postId) {
+  const userId = getCurrentUserId()
+  const reactions = db.reactions.filter((r) => r.postId === postId)
+  const mine = reactions.find((r) => r.userId === userId)
+  return {
+    likes: reactions.filter((r) => r.type === 'like').length,
+    dislikes: reactions.filter((r) => r.type === 'dislike').length,
+    myReaction: mine ? mine.type : null,
+  }
+}
+
+/** @returns {Promise<{ likes: number, dislikes: number, myReaction: 'like' | 'dislike' | null }>} */
+export async function setReaction(postId, type) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+    if (type !== 'like' && type !== 'dislike') throw fail('Reaction must be like or dislike', 400)
+
+    const post = db.posts.find((p) => p.id === postId && !p.hidden)
+    if (!post) throw fail('Post not found', 404)
+
+    // One reaction per user per post: change the old one instead of adding a second.
+    const existing = db.reactions.find((r) => r.postId === postId && r.userId === userId)
+    if (existing) {
+      existing.type = type
+    } else {
+      db.reactions.push({ id: `r${Date.now()}`, postId, userId, type })
+    }
+    saveDb(db)
+    return delay(reactionSummary(db, postId))
+  }
+  return request('PUT', `/posts/${postId}/reaction`, { type })
+}
+
+export async function removeReaction(postId) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+
+    db.reactions = db.reactions.filter((r) => !(r.postId === postId && r.userId === userId))
+    saveDb(db)
+    return delay(reactionSummary(db, postId))
+  }
+  return request('DELETE', `/posts/${postId}/reaction`)
+}
+
+/** @returns {Promise<{ bookmarked: boolean }>} */
+export async function addBookmark(postId) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+
+    const post = db.posts.find((p) => p.id === postId && !p.hidden)
+    if (!post) throw fail('Post not found', 404)
+
+    const saved = db.bookmarks.some((b) => b.userId === userId && b.postId === postId)
+    if (!saved) {
+      db.bookmarks.push({ id: `b${Date.now()}`, userId, postId, createdAt: new Date().toISOString() })
+      saveDb(db)
+    }
+    return delay({ bookmarked: true })
+  }
+  return request('PUT', `/posts/${postId}/bookmark`)
+}
+
+/** @returns {Promise<{ bookmarked: boolean }>} */
+export async function removeBookmark(postId) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+
+    db.bookmarks = db.bookmarks.filter((b) => !(b.userId === userId && b.postId === postId))
+    saveDb(db)
+    return delay({ bookmarked: false })
+  }
+  return request('DELETE', `/posts/${postId}/bookmark`)
+}
