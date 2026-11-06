@@ -25,13 +25,15 @@ Done:
 - Feed search, category filter, sort (newest or most liked) and pagination
 - Top posts sidebar with this week and all time views
 - Polished styling for the search bar, post cards and pagination
-
+- Create, edit and delete posts with form validation.
+- Post detail page with comments (add, edit and delete your own)
 Not yet:
 - Create, edit and delete posts, post details and comments
 - Likes and dislikes, bookmarks
 - Reports, notifications and My Activity
 - Moderator pages (reports, categories, announcements)
 - Connecting the frontend to the backend
+-Post details and comments
 
 ## Run the frontend
 

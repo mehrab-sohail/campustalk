@@ -1,5 +1,5 @@
 import { getDb, saveDb } from './mockData.js'
-import { validatePost } from '../utils/postValidators.js'
+import { validatePost, validateCommentBody } from '../utils/postValidators.js'
 /**
  * @typedef {import('../types/models').Post} Post
  * @typedef {import('../types/models').Category} Category
@@ -331,4 +331,111 @@ export async function deletePost(id) {
     return delay(null)
   }
   return request('DELETE', `/posts/${id}`)
+}
+
+// Builds a comment in the exact shape the API contract describes.
+function shapeComment(db, comment) {
+  const author = db.users.find((u) => u.id === comment.authorId)
+  return {
+    id: comment.id,
+    postId: comment.postId,
+    body: comment.body,
+    author: { id: author.id, name: author.name },
+    createdAt: comment.createdAt,
+    updatedAt: comment.updatedAt,
+  }
+}
+
+/** @returns {Promise<import('../types/models').Comment[]>} */
+export async function getComments(postId) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const post = db.posts.find((p) => p.id === postId && !p.hidden)
+    if (!post) throw fail('Post not found', 404)
+
+    const list = db.comments
+      .filter((c) => c.postId === postId && !c.hidden)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      .map((c) => shapeComment(db, c))
+    return delay(list)
+  }
+  return request('GET', `/posts/${postId}/comments`)
+}
+
+/** @returns {Promise<import('../types/models').Comment>} */
+export async function addComment(postId, { body }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    const commenter = db.users.find((u) => u.id === userId)
+    if (!commenter) throw fail('Please log in again', 401)
+
+    const post = db.posts.find((p) => p.id === postId && !p.hidden)
+    if (!post) throw fail('Post not found', 404)
+
+    const problem = validateCommentBody(body)
+    if (problem) throw fail(problem, 400, { body: problem })
+
+    const now = new Date().toISOString()
+    const comment = {
+      id: `cm${Date.now()}`,
+      postId,
+      body: body.trim(),
+      authorId: userId,
+      hidden: false,
+      createdAt: now,
+      updatedAt: now,
+    }
+    db.comments.push(comment)
+
+    // The post's author is told about the comment (shown on the Notifications page in Step 13).
+    if (post.authorId !== userId) {
+      db.notifications.push({
+        id: `n${Date.now()}`,
+        userId: post.authorId,
+        type: 'comment',
+        message: `${commenter.name} commented on your post "${post.title}"`,
+        postId,
+        read: false,
+        createdAt: now,
+      })
+    }
+
+    saveDb(db)
+    return delay(shapeComment(db, comment))
+  }
+  return request('POST', `/posts/${postId}/comments`, { body: body.trim() })
+}
+
+/** @returns {Promise<import('../types/models').Comment>} */
+export async function updateComment(commentId, { body }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const comment = db.comments.find((c) => c.id === commentId)
+    if (!comment) throw fail('Comment not found', 404)
+    if (comment.authorId !== getCurrentUserId()) throw fail('You can only edit your own comments', 403)
+
+    const problem = validateCommentBody(body)
+    if (problem) throw fail(problem, 400, { body: problem })
+
+    comment.body = body.trim()
+    comment.updatedAt = new Date().toISOString()
+    saveDb(db)
+    return delay(shapeComment(db, comment))
+  }
+  return request('PUT', `/comments/${commentId}`, { body: body.trim() })
+}
+
+export async function deleteComment(commentId) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const comment = db.comments.find((c) => c.id === commentId)
+    if (!comment) throw fail('Comment not found', 404)
+    if (comment.authorId !== getCurrentUserId()) throw fail('You can only delete your own comments', 403)
+
+    db.comments = db.comments.filter((c) => c.id !== commentId)
+    saveDb(db)
+    return delay(null)
+  }
+  return request('DELETE', `/comments/${commentId}`)
 }
