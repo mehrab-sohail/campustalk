@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import StateWrapper from '../components/StateWrapper.jsx'
+import PostActions from '../components/PostActions.jsx'
 import CommentForm from '../components/CommentForm.jsx'
 import CommentItem from '../components/CommentItem.jsx'
 import useFetch from '../hooks/useFetch.js'
@@ -74,9 +75,8 @@ function PostDetailPage() {
 
                   <p className="post-body">{post.body}</p>
 
-                  <div className="d-flex flex-wrap align-items-center gap-3 text-muted small border-top pt-3">
-                    <span>{post.likes} likes</span>
-                    <span>{post.dislikes} dislikes</span>
+                  <div className="d-flex flex-wrap align-items-center gap-3 border-top pt-3">
+                    <PostActions key={post.id} post={post} />
                     {isOwner && (
                       <Link to={`/posts/${post.id}/edit`} className="btn btn-outline-primary btn-sm ms-auto">
                         Edit post
