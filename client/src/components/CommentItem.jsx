@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ReportButton from './ReportButton.jsx'
 import { validateCommentBody } from '../utils/postValidators.js'
 
 function formatDateTime(isoString) {
@@ -11,7 +12,7 @@ function formatDateTime(isoString) {
   })
 }
 
-// One comment. The person who wrote it can edit or delete it.
+// One comment. The person who wrote it can edit or delete it. Everyone else can report it.
 function CommentItem({ comment, currentUserId, onUpdate, onDelete }) {
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(comment.body)
@@ -127,6 +128,8 @@ function CommentItem({ comment, currentUserId, onUpdate, onDelete }) {
                 </button>
               </div>
             ))}
+
+          {!isOwner && <ReportButton targetType="comment" targetId={comment.id} />}
         </>
       )}
     </div>

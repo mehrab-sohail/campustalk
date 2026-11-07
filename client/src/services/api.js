@@ -1,6 +1,5 @@
 import { getDb, saveDb } from './mockData.js'
-import { validatePost, validateCommentBody } from '../utils/postValidators.js'
-/**
+import { validatePost, validateCommentBody, validateReportReason } from '../utils/postValidators.js'/**
  * @typedef {import('../types/models').Post} Post
  * @typedef {import('../types/models').Category} Category
  * @typedef {import('../types/models').Paginated<Post>} PostPage
@@ -522,4 +521,86 @@ export async function removeBookmark(postId) {
     return delay({ bookmarked: false })
   }
   return request('DELETE', `/posts/${postId}/bookmark`)
+}
+
+/** @returns {Promise<{ id: string, status: 'open' }>} */
+export async function createReport({ targetType, targetId, reason }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+    if (targetType !== 'post' && targetType !== 'comment') {
+      throw fail('Target must be a post or a comment', 400)
+    }
+
+    const problem = validateReportReason(reason)
+    if (problem) throw fail(problem, 400, { reason: problem })
+
+    const target =
+      targetType === 'post'
+        ? db.posts.find((p) => p.id === targetId)
+        : db.comments.find((c) => c.id === targetId)
+    if (!target) throw fail('That content no longer exists', 404)
+    if (target.authorId === userId) throw fail('You cannot report your own content', 400)
+
+    const alreadyReported = db.reports.some(
+      (r) =>
+        r.reporterId === userId &&
+        r.targetType === targetType &&
+        r.targetId === targetId &&
+        r.status === 'open'
+    )
+    if (alreadyReported) throw fail('You already reported this', 409)
+
+    const report = {
+      id: `rp${Date.now()}`,
+      targetType,
+      targetId,
+      postId: targetType === 'post' ? target.id : target.postId,
+      reason: reason.trim(),
+      status: 'open',
+      reporterId: userId,
+      createdAt: new Date().toISOString(),
+    }
+    db.reports.push(report)
+    saveDb(db)
+    return delay({ id: report.id, status: report.status })
+  }
+  return request('POST', '/reports', { targetType, targetId, reason: reason.trim() })
+}
+
+/** @returns {Promise<import('../types/models').Notification[]>} */
+export async function getNotifications() {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+
+    const mine = db.notifications
+      .filter((n) => n.userId === userId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((n) => ({
+        id: n.id,
+        type: n.type,
+        message: n.message,
+        postId: n.postId,
+        read: n.read,
+        createdAt: n.createdAt,
+      }))
+    return delay(mine)
+  }
+  return request('GET', '/notifications')
+}
+
+export async function markNotificationRead(id) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const notification = db.notifications.find((n) => n.id === id && n.userId === getCurrentUserId())
+    if (!notification) throw fail('Notification not found', 404)
+
+    notification.read = true
+    saveDb(db)
+    return delay({ id, read: true })
+  }
+  return request('PUT', `/notifications/${id}/read`)
 }

@@ -38,3 +38,10 @@ export function validateCommentBody(body) {
   if (value.length > 1000) return 'Comment must be 1000 characters or less'
   return ''
 }
+
+export function validateReportReason(reason) {
+  const value = reason.trim()
+  if (value.length < 3) return 'Please tell the moderator why (at least 3 characters)'
+  if (value.length > 300) return 'Reason must be 300 characters or less'
+  return ''
+}

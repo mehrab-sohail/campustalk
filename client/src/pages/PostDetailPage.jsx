@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import StateWrapper from '../components/StateWrapper.jsx'
 import PostActions from '../components/PostActions.jsx'
+import ReportButton from '../components/ReportButton.jsx'
 import CommentForm from '../components/CommentForm.jsx'
 import CommentItem from '../components/CommentItem.jsx'
 import useFetch from '../hooks/useFetch.js'
@@ -77,11 +78,15 @@ function PostDetailPage() {
 
                   <div className="d-flex flex-wrap align-items-center gap-3 border-top pt-3">
                     <PostActions key={post.id} post={post} />
-                    {isOwner && (
-                      <Link to={`/posts/${post.id}/edit`} className="btn btn-outline-primary btn-sm ms-auto">
-                        Edit post
-                      </Link>
-                    )}
+                    <div className="ms-auto">
+                      {isOwner ? (
+                        <Link to={`/posts/${post.id}/edit`} className="btn btn-outline-primary btn-sm">
+                          Edit post
+                        </Link>
+                      ) : (
+                        <ReportButton targetType="post" targetId={post.id} />
+                      )}
+                    </div>
                   </div>
                 </div>
               </article>
