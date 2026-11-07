@@ -45,3 +45,11 @@ export function validateReportReason(reason) {
   if (value.length > 300) return 'Reason must be 300 characters or less'
   return ''
 }
+
+
+export function validateCategoryName(name) {
+  const value = name.trim()
+  if (value.length < 2) return 'Category name must be at least 2 characters'
+  if (value.length > 40) return 'Category name must be 40 characters or less'
+  return ''
+}
