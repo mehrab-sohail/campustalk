@@ -27,7 +27,8 @@ Done:
 - Polished styling for the search bar, post cards and pagination
 - Create, edit and delete posts with form validation.
 - Post detail page with comments (add, edit and delete your own)
-
+- Report posts and comments with a reason
+- Notifications page with mark as read
 
 Not yet:
 - Create, edit and delete posts, post details and comments
