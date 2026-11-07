@@ -604,3 +604,55 @@ export async function markNotificationRead(id) {
   }
   return request('PUT', `/notifications/${id}/read`)
 }
+
+/** @returns {Promise<Post[]>} */
+export async function getMyPosts() {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+
+    const mine = db.posts
+      .filter((p) => p.authorId === userId && !p.hidden)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((p) => shapePost(db, p))
+    return delay(mine)
+  }
+  return request('GET', '/users/me/posts')
+}
+
+/** @returns {Promise<import('../types/models').Comment[]>} */
+export async function getMyComments() {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+
+    const mine = db.comments
+      .filter((c) => c.authorId === userId && !c.hidden)
+      .map((comment) => ({ comment, post: db.posts.find((p) => p.id === comment.postId && !p.hidden) }))
+      .filter((entry) => entry.post)
+      .sort((a, b) => b.comment.createdAt.localeCompare(a.comment.createdAt))
+      .map(({ comment, post }) => ({ ...shapeComment(db, comment), postTitle: post.title }))
+    return delay(mine)
+  }
+  return request('GET', '/users/me/comments')
+}
+
+/** @returns {Promise<Post[]>} */
+export async function getMyBookmarks() {
+  if (USE_MOCK) {
+    const db = getDb()
+    const userId = getCurrentUserId()
+    if (!userId) throw fail('Please log in again', 401)
+
+    const saved = db.bookmarks
+      .filter((b) => b.userId === userId)
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+      .map((b) => db.posts.find((p) => p.id === b.postId && !p.hidden))
+      .filter(Boolean)
+      .map((p) => shapePost(db, p))
+    return delay(saved)
+  }
+  return request('GET', '/users/me/bookmarks')
+}

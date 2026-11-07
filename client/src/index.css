@@ -369,3 +369,21 @@ h1, h2, h3, h4, h5, h6,
   border-left-color: #0093dd;
   background: #eef7fd;
 }
+
+
+/* My Activity tabs */
+.nav-pills {
+  --bs-nav-pills-link-active-bg: #16498c;
+  gap: 0.4rem;
+}
+
+.nav-pills .nav-link {
+  border-radius: 50rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  color: #16498c;
+}
+
+.nav-pills .nav-link.active {
+  color: #ffffff;
+}
