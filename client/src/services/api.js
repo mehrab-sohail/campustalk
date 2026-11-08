@@ -1,5 +1,6 @@
 import { getDb, saveDb } from './mockData.js'
-import { validatePost, validateCommentBody, validateReportReason, validateCategoryName, validateAnnouncement } from '../utils/postValidatorsjs' /*
+import { validatePost, validateCommentBody, validateReportReason, validateCategoryName, validateAnnouncement } from '../utils/postValidators.js'
+/**
  * @typedef {import('../types/models').Post} Post
  * @typedef {import('../types/models').Category} Category
  * @typedef {import('../types/models').Paginated<Post>} PostPage
