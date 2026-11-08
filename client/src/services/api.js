@@ -1,5 +1,5 @@
 import { getDb, saveDb } from './mockData.js'
-import { validatePost, validateCommentBody, validateReportReason } from '../utils/postValidators.js'/**
+import { validatePost, validateCommentBody, validateReportReason, validateCategoryName, validateAnnouncement } from '../utils/postValidatorsjs' /*
  * @typedef {import('../types/models').Post} Post
  * @typedef {import('../types/models').Category} Category
  * @typedef {import('../types/models').Paginated<Post>} PostPage
@@ -655,4 +655,91 @@ export async function getMyBookmarks() {
     return delay(saved)
   }
   return request('GET', '/users/me/bookmarks')
+}
+
+
+// ---------- Announcements ----------
+
+// Builds an announcement in the exact shape the API contract describes.
+function shapeAnnouncement(db, announcement) {
+  const author = db.users.find((u) => u.id === announcement.authorId)
+  return {
+    id: announcement.id,
+    title: announcement.title,
+    body: announcement.body,
+    pinned: announcement.pinned,
+    author: { id: author ? author.id : '', name: author ? author.name : 'Moderator' },
+    createdAt: announcement.createdAt,
+  }
+}
+
+/** @returns {Promise<import('../types/models').Announcement[]>} */
+export async function getAnnouncements() {
+  if (USE_MOCK) {
+    const db = getDb()
+    // Pinned announcements first, then the newest.
+    const list = db.announcements
+      .slice()
+      .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.createdAt.localeCompare(a.createdAt))
+      .map((a) => shapeAnnouncement(db, a))
+    return delay(list)
+  }
+  return request('GET', '/announcements')
+}
+
+/** @returns {Promise<import('../types/models').Announcement>} */
+export async function createAnnouncement({ title, body, pinned = false }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    const moderator = requireModerator(db)
+
+    const errors = validateAnnouncement({ title, body })
+    if (Object.keys(errors).length > 0) {
+      throw fail('Please fix the highlighted fields', 400, errors)
+    }
+
+    const announcement = {
+      id: `a${Date.now()}`,
+      title: title.trim(),
+      body: body.trim(),
+      pinned: Boolean(pinned),
+      authorId: moderator.id,
+      createdAt: new Date().toISOString(),
+    }
+    db.announcements.push(announcement)
+    saveDb(db)
+    return delay(shapeAnnouncement(db, announcement))
+  }
+  return request('POST', '/announcements', { title: title.trim(), body: body.trim(), pinned })
+}
+
+/** @returns {Promise<import('../types/models').Announcement>} */
+export async function setAnnouncementPinned(id, pinned) {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const announcement = db.announcements.find((a) => a.id === id)
+    if (!announcement) throw fail('Announcement not found', 404)
+
+    announcement.pinned = Boolean(pinned)
+    saveDb(db)
+    return delay(shapeAnnouncement(db, announcement))
+  }
+  return request('PUT', `/announcements/${id}`, { pinned })
+}
+
+export async function deleteAnnouncement(id) {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const announcement = db.announcements.find((a) => a.id === id)
+    if (!announcement) throw fail('Announcement not found', 404)
+
+    db.announcements = db.announcements.filter((a) => a.id !== id)
+    saveDb(db)
+    return delay(null)
+  }
+  return request('DELETE', `/announcements/${id}`)
 }
