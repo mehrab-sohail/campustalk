@@ -1,6 +1,6 @@
 # CampusTalk
 
-Campus discussion and community platform for the Web Programming project, Fall 2026. Students can post in categories, comment, react, bookmark and report content, and a moderator handles reports and announcements.
+Campus discussion and community platform for the Web Programming project, Fall 2026. Students can post in categories, comment, react, bookmark and report content, and a moderator handles reports, categories and announcements.
 
 ## Technologies
 
@@ -25,23 +25,20 @@ Done:
 - Feed search, category filter, sort (newest or most liked) and pagination
 - Top posts sidebar with this week and all time views
 - Polished styling for the search bar, post cards and pagination
-- Create, edit and delete posts with form validation.
+- Create, edit and delete posts with form validation
 - Post detail page with comments (add, edit and delete your own)
+- Like and dislike (one per user per post) and bookmarks
 - Report posts and comments with a reason
 - Notifications page with mark as read
 - My Activity page: my posts, my comments and bookmarks
 - Moderator page: review reports, hide content and resolve reports
 - Category management: add, rename, archive and delete
 - Moderation notifications for hidden content and reviewed reports
+- Announcements: the moderator publishes, pins and deletes them, and they show on the feed
 
 Not yet:
-- Create, edit and delete posts, post details and comments
-- Likes and dislikes, bookmarks
-- My Activity page
-- Moderator pages (reports, categories, announcements)
-- Connecting the frontend to the backend
-- Post details and comments
-- Post details and comments.
+- Connecting the frontend to the backend (the backend is being built separately)
+
 ## Run the frontend
 
 ```

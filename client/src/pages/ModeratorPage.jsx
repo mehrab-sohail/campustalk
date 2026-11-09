@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import ReportsPanel from '../components/ReportsPanel.jsx'
 import CategoriesPanel from '../components/CategoriesPanel.jsx'
+import AnnouncementsPanel from '../components/AnnouncementsPanel.jsx'
 
 const TABS = [
   { id: 'reports', label: 'Reports' },
   { id: 'categories', label: 'Categories' },
+  { id: 'announcements', label: 'Announcements' },
 ]
 
 function ModeratorPage() {
@@ -31,6 +33,7 @@ function ModeratorPage() {
 
         {tab === 'reports' && <ReportsPanel />}
         {tab === 'categories' && <CategoriesPanel />}
+        {tab === 'announcements' && <AnnouncementsPanel />}
       </div>
     </div>
   )

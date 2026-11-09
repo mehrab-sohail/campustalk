@@ -389,6 +389,30 @@ h1, h2, h3, h4, h5, h6,
 }
 
 
+/* Announcements */
+.announcement {
+  background: #ffffff;
+  border-radius: 12px;
+  border-left: 4px solid #d5dfee;
+  padding: 0.9rem 1rem;
+  box-shadow: 0 2px 10px rgba(22, 73, 140, 0.06);
+}
+
+.announcement.pinned {
+  border-left-color: #f2b705;
+  background: #fffaf0;
+}
+
+.announcement-title {
+  font-family: 'Poppins', sans-serif;
+  color: #0f3566;
+}
+
+.announcement-text {
+  white-space: pre-wrap;
+  color: #44526b;
+}
+
 /* Moderator page */
 .report-preview {
   border-left: 3px solid #d5dfee;

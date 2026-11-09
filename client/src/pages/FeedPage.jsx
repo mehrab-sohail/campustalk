@@ -1,24 +1,44 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import PostCard from '../components/PostCard.jsx'
 import StateWrapper from '../components/StateWrapper.jsx'
 import SearchFilterBar from '../components/SearchFilterBar.jsx'
 import Pagination from '../components/Pagination.jsx'
 import TopPostsSidebar from '../components/TopPostsSidebar.jsx'
+import AnnouncementsBanner from '../components/AnnouncementsBanner.jsx'
 import useFetch from '../hooks/useFetch.js'
 import { getPosts, getCategories } from '../services/api.js'
 
 function FeedPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [sort, setSort] = useState('newest')
+  // A message sent by another page, like "Your post was submitted successfully."
+  const [notice, setNotice] = useState(location.state?.message || '')
 
   const { data: categories } = useFetch(() => getCategories(), [])
   const { data, loading, error, reload } = useFetch(
     () => getPosts({ page, pageSize: 10, search, categoryId, sort }),
     [page, search, categoryId, sort]
   )
+
+  // Remove the message from the browser history, so a refresh does not show it again.
+  useEffect(() => {
+    if (location.state?.message) {
+      navigate(location.pathname, { replace: true, state: null })
+    }
+  }, [])
+
+  // Hide the message by itself after 5 seconds.
+  useEffect(() => {
+    if (!notice) return undefined
+    const timer = setTimeout(() => setNotice(''), 5000)
+    return () => clearTimeout(timer)
+  }, [notice])
 
   // Every filter change goes back to page 1, so the person never lands on an empty page.
   function handleSearch(value) {
@@ -52,6 +72,13 @@ function FeedPage() {
 
   return (
     <div>
+      {notice && (
+        <div className="alert alert-success d-flex justify-content-between align-items-center" role="status">
+          <span>{notice}</span>
+          <button type="button" className="btn-close" aria-label="Close" onClick={() => setNotice('')}></button>
+        </div>
+      )}
+
       <div className="hero mb-4">
         <h2 className="mb-2">Campus discussions, all in one place</h2>
         <p className="mb-3">
@@ -59,6 +86,8 @@ function FeedPage() {
         </p>
         <Link to="/posts/new" className="btn btn-light">Start a discussion</Link>
       </div>
+
+      <AnnouncementsBanner />
 
       <div className="row">
         <div className="col-lg-8">

@@ -46,6 +46,23 @@ export function validateReportReason(reason) {
   return ''
 }
 
+export function validateAnnouncementBody(body) {
+  const value = body.trim()
+  if (!value) return 'Announcement text is required'
+  if (value.length > 2000) return 'Announcement text must be 2000 characters or less'
+  return ''
+}
+
+// Returns an object with only the fields that have a problem, like { title: '...' }.
+export function validateAnnouncement({ title, body }) {
+  const errors = {}
+  const titleError = validateTitle(title)
+  const bodyError = validateAnnouncementBody(body)
+
+  if (titleError) errors.title = titleError
+  if (bodyError) errors.body = bodyError
+  return errors
+}
 
 export function validateCategoryName(name) {
   const value = name.trim()
