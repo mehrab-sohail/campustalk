@@ -744,3 +744,215 @@ export async function deleteAnnouncement(id) {
   }
   return request('DELETE', `/announcements/${id}`)
 }
+
+// ---------- Moderator functions ----------
+
+// Stops anyone who is not a moderator, like the real server will.
+function requireModerator(db) {
+  const user = db.users.find((u) => u.id === getCurrentUserId())
+  if (!user || user.role !== 'moderator') throw fail('Only moderators can do this', 403)
+  return user
+}
+
+function addNotification(db, { userId, type, message, postId }) {
+  db.notifications.push({
+    id: `n${Date.now()}-${db.notifications.length}`,
+    userId,
+    type,
+    message,
+    postId,
+    read: false,
+    createdAt: new Date().toISOString(),
+  })
+}
+
+function findReportTarget(db, report) {
+  return report.targetType === 'post'
+    ? db.posts.find((p) => p.id === report.targetId)
+    : db.comments.find((c) => c.id === report.targetId)
+}
+
+// Builds a report in the exact shape the API contract describes.
+function shapeReport(db, report) {
+  const target = findReportTarget(db, report)
+  const reporter = db.users.find((u) => u.id === report.reporterId)
+
+  let preview = 'This content was deleted by its author'
+  if (target) {
+    const text = report.targetType === 'post' ? target.title : target.body
+    preview = text.length > 120 ? `${text.slice(0, 120)}...` : text
+  }
+
+  return {
+    id: report.id,
+    targetType: report.targetType,
+    targetId: report.targetId,
+    postId: report.postId,
+    targetPreview: preview,
+    targetHidden: Boolean(target && target.hidden),
+    reason: report.reason,
+    status: report.status,
+    reporter: { id: reporter ? reporter.id : '', name: reporter ? reporter.name : 'Unknown' },
+    createdAt: report.createdAt,
+  }
+}
+
+/** @returns {Promise<import('../types/models').Report[]>} */
+export async function getReports(status = 'open') {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const list = db.reports
+      .filter((r) => r.status === status)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((r) => shapeReport(db, r))
+    return delay(list)
+  }
+  return request('GET', `/reports${toQuery({ status })}`)
+}
+
+// Hides the reported post or comment and resolves the report.
+export async function hideReport(id) {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const report = db.reports.find((r) => r.id === id)
+    if (!report) throw fail('Report not found', 404)
+    if (report.status === 'resolved') throw fail('This report is already resolved', 409)
+
+    const target = findReportTarget(db, report)
+    if (target) target.hidden = true
+
+    // This report and every other open report on the same content are resolved together.
+    const sameContent = db.reports.filter(
+      (r) => r.status === 'open' && r.targetType === report.targetType && r.targetId === report.targetId
+    )
+    sameContent.forEach((r) => {
+      r.status = 'resolved'
+    })
+
+    // A hidden post cannot be opened any more, so its notification has no post to link to.
+    const linkedPostId = report.targetType === 'post' ? '' : report.postId
+
+    if (target) {
+      const label = report.targetType === 'post' ? target.title : target.body.slice(0, 60)
+      addNotification(db, {
+        userId: target.authorId,
+        type: 'moderation',
+        message: `Your ${report.targetType} "${label}" was hidden by a moderator.`,
+        postId: linkedPostId,
+      })
+    }
+
+    const reporterIds = [...new Set(sameContent.map((r) => r.reporterId))]
+    reporterIds.forEach((reporterId) => {
+      addNotification(db, {
+        userId: reporterId,
+        type: 'moderation',
+        message: `Your report was reviewed: the ${report.targetType} was hidden.`,
+        postId: linkedPostId,
+      })
+    })
+
+    saveDb(db)
+    return delay({ id, status: 'resolved' })
+  }
+  return request('PUT', `/reports/${id}/hide`)
+}
+
+// Resolves the report without hiding anything.
+export async function resolveReport(id) {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const report = db.reports.find((r) => r.id === id)
+    if (!report) throw fail('Report not found', 404)
+    if (report.status === 'resolved') throw fail('This report is already resolved', 409)
+
+    report.status = 'resolved'
+
+    const post = db.posts.find((p) => p.id === report.postId && !p.hidden)
+    addNotification(db, {
+      userId: report.reporterId,
+      type: 'moderation',
+      message: 'Your report was reviewed. No action was needed.',
+      postId: post ? post.id : '',
+    })
+
+    saveDb(db)
+    return delay({ id, status: 'resolved' })
+  }
+  return request('PUT', `/reports/${id}/resolve`)
+}
+
+/** @returns {Promise<Category>} */
+export async function createCategory({ name }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const problem = validateCategoryName(name)
+    if (problem) throw fail(problem, 400, { name: problem })
+
+    const taken = db.categories.some((c) => c.name.toLowerCase() === name.trim().toLowerCase())
+    if (taken) throw fail('That category already exists', 409, { name: 'That category already exists' })
+
+    const category = { id: `c${Date.now()}`, name: name.trim(), archived: false }
+    db.categories.push(category)
+    saveDb(db)
+    return delay(category)
+  }
+  return request('POST', '/categories', { name: name.trim() })
+}
+
+/** @returns {Promise<Category>} */
+export async function updateCategory(id, { name, archived }) {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const category = db.categories.find((c) => c.id === id)
+    if (!category) throw fail('Category not found', 404)
+
+    if (name !== undefined) {
+      const problem = validateCategoryName(name)
+      if (problem) throw fail(problem, 400, { name: problem })
+
+      const taken = db.categories.some(
+        (c) => c.id !== id && c.name.toLowerCase() === name.trim().toLowerCase()
+      )
+      if (taken) throw fail('That category already exists', 409, { name: 'That category already exists' })
+      category.name = name.trim()
+    }
+    if (archived !== undefined) category.archived = Boolean(archived)
+
+    saveDb(db)
+    return delay({ ...category })
+  }
+  const body = {}
+  if (name !== undefined) body.name = name.trim()
+  if (archived !== undefined) body.archived = archived
+  return request('PUT', `/categories/${id}`, body)
+}
+
+// A category that has posts cannot be deleted. It has to be archived instead.
+export async function deleteCategory(id) {
+  if (USE_MOCK) {
+    const db = getDb()
+    requireModerator(db)
+
+    const category = db.categories.find((c) => c.id === id)
+    if (!category) throw fail('Category not found', 404)
+    if (db.posts.some((p) => p.categoryId === id)) {
+      throw fail('This category has posts. Archive it instead.', 409)
+    }
+
+    db.categories = db.categories.filter((c) => c.id !== id)
+    saveDb(db)
+    return delay(null)
+  }
+  return request('DELETE', `/categories/${id}`)
+}

@@ -63,3 +63,10 @@ export function validateAnnouncement({ title, body }) {
   if (bodyError) errors.body = bodyError
   return errors
 }
+
+export function validateCategoryName(name) {
+  const value = name.trim()
+  if (value.length < 2) return 'Category name must be at least 2 characters'
+  if (value.length > 40) return 'Category name must be 40 characters or less'
+  return ''
+}
