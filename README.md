@@ -30,6 +30,9 @@ Done:
 - Report posts and comments with a reason
 - Notifications page with mark as read
 - My Activity page: my posts, my comments and bookmarks
+- Moderator page: review reports, hide content and resolve reports
+- Category management: add, rename, archive and delete
+- Moderation notifications for hidden content and reviewed reports
 
 Not yet:
 - Create, edit and delete posts, post details and comments
