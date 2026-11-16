@@ -2,7 +2,25 @@
 
 Campus discussion and community platform for the Web Programming project, Fall 2026. Students can post in categories, comment, react, bookmark and report content, and a moderator handles reports, categories and announcements.
 
+## Live demo
+
+https://campustalk-jet.vercel.app/login
+
+The demo runs the frontend with built-in sample data stored in the browser, so no backend is needed. Log in with a sample account:
+- Student: `ali@campustalk.test` / `Student123`
+- Moderator: `moderator@campustalk.test` / `Moderator123`
+
 ## Technologies
+
+- React (Vite) with JavaScript
+- Redux Toolkit for login state
+- React Router
+- Bootstrap, with a custom FAST-NUCES color theme and Poppins and Roboto fonts
+- TypeScript interfaces for the data models (`client/src/types/models.ts`)
+- Node.js, Express and a database (backend, built separately)
+
+## Technologies
+
 
 - React (Vite) with JavaScript
 - Redux Toolkit for login state
