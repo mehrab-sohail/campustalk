@@ -24,9 +24,7 @@ router.post('/signup', async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  // role is always "student" — signup can never create a moderator,
-  // no matter what the request body contains
+  
   const user = await User.create({ name, email, password: hashedPassword, role: 'student' });
 
   const token = generateToken(user._id);
