@@ -1,6 +1,7 @@
 const express = require('express');
 const Category = require('../models/Category');
 const { requireAuth, requireModerator } = require('../middleware/auth');
+const Post = require('../models/Post'); 
 
 const router = express.Router();
 
@@ -57,7 +58,10 @@ router.delete('/:id', requireAuth, requireModerator, async (req, res) => {
     return res.status(404).json({ message: 'Category not found' });
   }
 
-  // TODO (Step 4): return 409 if any Post references this category
+  const postsInCategory = await Post.countDocuments({ category: category._id });
+  if (postsInCategory > 0) {
+   return res.status(409).json({ message: 'Cannot delete a category that has posts. Archive it instead.' });
+  }
 
   await category.deleteOne();
   res.status(204).send();
