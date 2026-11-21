@@ -3,6 +3,7 @@ const Report = require('../models/Report');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const { requireAuth, requireModerator } = require('../middleware/auth');
+const createNotification = require('../utils/createNotification');
 
 const router = express.Router();
 
@@ -76,9 +77,13 @@ router.patch('/:id/hide', requireAuth, requireModerator, async (req, res) => {
   report.targetHidden = true;
   await report.save();
 
-  // TODO (Step 9 - Notifications): create a "moderation" notification
-  // for the content's author here.
-
+  const target = await Model.findById(report.targetId);
+  await createNotification({
+    recipient: target.author,
+    type: 'moderation',
+    message: `Your ${report.targetType} was hidden by a moderator`,
+    postId: report.postId,
+  });
   res.json(formatReport(report));
 });
 
@@ -92,8 +97,12 @@ router.patch('/:id/resolve', requireAuth, requireModerator, async (req, res) => 
   report.status = 'resolved';
   await report.save();
 
-  // TODO (Step 9 - Notifications): create a "moderation" notification
-  // for the reporter here.
+  await createNotification({
+    recipient: report.reporter,
+    type: 'moderation',
+    message: 'Your report was reviewed',
+    postId: report.postId,
+  });
 
   res.json(formatReport(report));
 });

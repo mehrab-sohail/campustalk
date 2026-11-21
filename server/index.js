@@ -10,6 +10,7 @@ const userRoutes = require('./routes/userRoutes');
 const reactionRoutes = require('./routes/reactionRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/users', userRoutes);
 app.use('/api', reactionRoutes);
 app.use('/api', bookmarkRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))

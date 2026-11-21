@@ -2,6 +2,7 @@ const express = require('express');
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
 const { requireAuth } = require('../middleware/auth');
+const createNotification = require('../utils/createNotification');
 
 const router = express.Router();
 
@@ -37,8 +38,14 @@ router.post('/posts/:id/comments', requireAuth, async (req, res) => {
   post.commentCount += 1;
   await post.save();
 
-  // TODO (Step 9 - Notifications): if post.author !== req.user.id,
-  // create a "comment" notification for the post's author.
+    if (post.author.toString() !== req.user.id) {
+    await createNotification({
+      recipient: post.author,
+      type: 'comment',
+      message: `${req.user.name} commented on your post`,
+      postId: post._id,
+    });
+  }
 
   res.status(201).json(formatComment(comment));
 });
