@@ -11,6 +11,7 @@ const reactionRoutes = require('./routes/reactionRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api', reactionRoutes);
 app.use('/api', bookmarkRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
