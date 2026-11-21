@@ -7,6 +7,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const userRoutes = require('./routes/userRoutes');
+const reactionRoutes = require('./routes/reactionRoutes');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api', commentRoutes);       // because this file defines both /posts/:id/comments and /comments/:id
 app.use('/api/users', userRoutes);
+app.use('/api', reactionRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
