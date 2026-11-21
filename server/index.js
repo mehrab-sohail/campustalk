@@ -9,6 +9,7 @@ const commentRoutes = require('./routes/commentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const reactionRoutes = require('./routes/reactionRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api', commentRoutes);       // because this file defines both /posts/:
 app.use('/api/users', userRoutes);
 app.use('/api', reactionRoutes);
 app.use('/api', bookmarkRoutes);
+app.use('/api/reports', reportRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
