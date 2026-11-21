@@ -22,7 +22,7 @@ router.get('/top', requireAuth, async (req, res) => {
     .populate('category')
     .populate('author');
 
-  res.json(await Promise.all(posts.map((p) => formatPost(p, req.user.id))));
+  res.json(await Promise.all(posts.map((p) => formatPost(p, req.user))));
 });
 
 router.get('/', requireAuth, async (req, res) => {
@@ -51,7 +51,7 @@ router.get('/', requireAuth, async (req, res) => {
     .populate('category')
     .populate('author');
 
-  const items = await Promise.all(posts.map((p) => formatPost(p, req.user.id)));
+  const items = await Promise.all(posts.map((p) => formatPost(p, req.user)));
 
   res.json({
     items,
@@ -70,7 +70,7 @@ router.get('/:id', requireAuth, async (req, res) => {
   if (post.hidden && req.user.role !== 'moderator') {
     return res.status(404).json({ message: 'Post not found' });
   }
-  res.json(await formatPost(post, req.user.id));
+  res.json(await formatPost(post, req.user));
 });
 
 router.post('/', requireAuth, async (req, res) => {
@@ -92,7 +92,7 @@ router.post('/', requireAuth, async (req, res) => {
   await post.populate('category');
   await post.populate('author');
 
-  res.status(201).json(await formatPost(post, req.user.id));
+  res.status(201).json(await formatPost(post, req.user));
 });
 
 router.put('/:id', requireAuth, async (req, res) => {
@@ -128,7 +128,7 @@ router.put('/:id', requireAuth, async (req, res) => {
   await post.save();
   await post.populate('category');
   await post.populate('author');
-  res.json(await formatPost(post, req.user.id));
+  res.json(await formatPost(post, req.user));
 });
 
 router.delete('/:id', requireAuth, async (req, res) => {

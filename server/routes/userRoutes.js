@@ -34,7 +34,7 @@ router.get('/me/posts', requireAuth, async (req, res) => {
     .sort({ createdAt: -1 })
     .populate('category')
     .populate('author');
-    res.json(await Promise.all(posts.map((p) => formatPost(p, req.user.id))));
+    res.json(await Promise.all(posts.map((p) => formatPost(p, req.user))));
 });
 
 router.get('/me/comments', requireAuth, async (req, res) => {

@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, select: false },
   role: { type: String, enum: ['student', 'moderator'], default: 'student' },
   bio: { type: String, maxLength: 300, default: '' },
+  bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
 }, { timestamps: true });
 
 userSchema.set('toJSON', {
@@ -14,6 +15,7 @@ userSchema.set('toJSON', {
     delete ret._id;
     delete ret.__v;
     delete ret.password;
+    delete ret.bookmarks;
     return ret;
   },
 });
