@@ -65,7 +65,7 @@ router.get('/', requireAuth, requireModerator, async (req, res) => {
   res.json(reports.map(formatReport));
 });
 
-router.patch('/:id/hide', requireAuth, requireModerator, async (req, res) => {
+router.put('/:id/hide', requireAuth, requireModerator, async (req, res) => {
   const report = await Report.findById(req.params.id).populate('reporter');
   if (!report) {
     return res.status(404).json({ message: 'Report not found' });
@@ -88,7 +88,7 @@ router.patch('/:id/hide', requireAuth, requireModerator, async (req, res) => {
 });
 
 // PATCH /api/reports/:id/resolve — moderator only
-router.patch('/:id/resolve', requireAuth, requireModerator, async (req, res) => {
+router.put('/:id/resolve', requireAuth, requireModerator, async (req, res) => {
   const report = await Report.findById(req.params.id).populate('reporter');
   if (!report) {
     return res.status(404).json({ message: 'Report not found' });

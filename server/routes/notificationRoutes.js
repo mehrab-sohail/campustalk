@@ -9,7 +9,7 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(notifications.map((n) => n.toJSON()));
 });
 
-router.patch('/:id/read', requireAuth, async (req, res) => {
+router.put('/:id/read', requireAuth, async (req, res) => {
   const notification = await Notification.findById(req.params.id);
   if (!notification) {
     return res.status(404).json({ message: 'Notification not found' });

@@ -26,7 +26,7 @@ router.get('/top', requireAuth, async (req, res) => {
 });
 
 router.get('/', requireAuth, async (req, res) => {
-  const { search, category, sort } = req.query;
+  const { search, categoryId, sort } = req.query;
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 10;
 
@@ -37,8 +37,8 @@ router.get('/', requireAuth, async (req, res) => {
       { body: { $regex: search, $options: 'i' } },
     ];
   }
-  if (category) {
-    filter.category = category;
+  if (categoryId) {
+    filter.category = categoryId;
   }
 
   const sortOption = sort === 'liked' ? { likes: -1, createdAt: -1 } : { createdAt: -1 };

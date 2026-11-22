@@ -5,7 +5,7 @@ const formatPost = require('../utils/formatPost');
 
 const router = express.Router();
 
-router.get('/bookmarks', requireAuth, async (req, res) => {
+router.get('/users/me/bookmarks', requireAuth, async (req, res) => {
   const posts = await Post.find({ _id: { $in: req.user.bookmarks } })
     .populate('category')
     .populate('author');
