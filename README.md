@@ -6,39 +6,34 @@ Campus discussion and community platform for the Web Programming project, Fall 2
 
 https://campustalk-jet.vercel.app/login
 
-The demo runs the frontend with built-in sample data stored in the browser, so no backend is needed. Log in with a sample account:
+The live demo runs the frontend with built-in sample data stored in the browser, so no backend is needed. Log in with a sample account:
 - Student: `ali@campustalk.test` / `Student123`
 - Moderator: `moderator@campustalk.test` / `Moderator123`
 
+The full version with the real backend and database runs on your own computer (see "Run the full project" below).
+
 ## Technologies
 
+Frontend (`client/`):
 - React (Vite) with JavaScript
 - Redux Toolkit for login state
 - React Router
 - Bootstrap, with a custom FAST-NUCES color theme and Poppins and Roboto fonts
 - TypeScript interfaces for the data models (`client/src/types/models.ts`)
-- Node.js, Express and a database (backend, built separately)
 
-## Technologies
+Backend (`server/`):
+- Node.js and Express
+- MongoDB with Mongoose
+- JSON Web Tokens (JWT) for login, bcryptjs for password hashing
+- CORS, dotenv
 
+## Project status
 
-- React (Vite) with JavaScript
-- Redux Toolkit for login state
-- React Router
-- Bootstrap, with a custom FAST-NUCES color theme and Poppins and Roboto fonts
-- TypeScript interfaces for the data models (`client/src/types/models.ts`)
-- Node.js, Express and a database (backend, built separately)
+Both the frontend and the backend are finished and connected.
 
-## Current Status
-
-Done (frontend):
-- Project setup with React (Vite) and Bootstrap
-- Folder structure, data model types and a mock API service with sample data
-- Redux store and auth slice (login saved in Local Storage)
+Frontend:
+- Login and signup with form validation, profile edit
 - Navbar, routing and protected routes (student and moderator)
-- Login and signup pages with form validation
-- Profile edit page
-- FAST-NUCES color theme, Poppins and Roboto fonts
 - Feed with post cards, loading, empty and error states
 - Search, category filter, sort (newest or most liked) and pagination
 - Top posts sidebar with this week and all time views
@@ -50,61 +45,112 @@ Done (frontend):
 - My Activity page: my posts, my comments and bookmarks
 - Moderator page: review reports, hide content and resolve reports
 - Category management: add, rename, archive and delete
-- Moderation notifications for hidden content and reviewed reports
 - Announcements: the moderator publishes, pins and deletes them, and they show on the feed
 
-Not yet:
-- Backend (Node.js, Express, database) and connecting the frontend to it
+Backend:
+- REST API under `/api` with token login (`Authorization: Bearer <token>`)
+- Users, categories, posts, comments, reactions, bookmarks, reports, notifications and announcements stored in MongoDB
+- Role checks on the server: moderator endpoints return 403 for students, and only the author can edit or delete their own post or comment
+- One like or dislike per user per post (unique rule on user and post in the database)
+- Signup always creates a student account
+- Hidden posts and comments are not returned to normal users
+- Input validation on the server as well as in the frontend
+- Seed script that fills the database with sample data
 
-## Run the frontend
+## Project structure
+
+```
+campustalk/
+  client/   React frontend (Vite)
+  server/   Express backend (routes, models, middleware, seed script)
+  docs/     API_CONTRACT.md (endpoints and response shapes)
+```
+
+## Run the full project
+
+You need Node.js and a MongoDB database (a local MongoDB or a free MongoDB Atlas cluster).
+
+### 1. Start the backend
+
+```
+cd server
+npm install
+```
+
+Create a file named `.env` inside the `server` folder with:
+
+```
+MONGO_URI=your MongoDB connection string
+JWT_SECRET=any long random text
+PORT=5000
+```
+
+Then fill the database with sample data and start the server:
+
+```
+npm run seed
+npm run dev
+```
+
+The server runs on http://localhost:5000 and the API is under `/api`. Open http://localhost:5000/api/health to check that it is running. Running `npm run seed` again clears the database and recreates the sample data.
+
+### 2. Start the frontend
+
+In a second terminal:
 
 ```
 cd client
 npm install
+```
+
+Copy `client/.env.example` to `client/.env` and set:
+
+```
+VITE_USE_MOCK=false
+VITE_API_URL=http://localhost:5000/api
+```
+
+Then start it:
+
+```
 npm run dev
 ```
 
-Copy `client/.env.example` to `client/.env`. With `VITE_USE_MOCK=true` the app uses built-in sample data stored in the browser, so no backend is needed.
+Open http://localhost:5173. The backend only accepts requests from this address (CORS).
 
-Sample accounts (fictional):
-- Student: `ali@campustalk.test` / `Student123`
+### Frontend only (no backend)
+
+If `VITE_USE_MOCK=true` in `client/.env`, the app uses built-in sample data stored in the browser, so you do not need the server or a database. This is how the live demo runs.
+
+## Sample accounts (fictional)
+
 - Moderator: `moderator@campustalk.test` / `Moderator123`
+- Students: `ali@campustalk.test`, `sara@campustalk.test`, `hamza@campustalk.test` / `Student123`
 
-## For the backend developer
+With the backend, these accounts exist after `npm run seed`. In mock mode they are built in.
 
-Start here. The frontend is finished and works with mock data, so your job is to build a server that behaves the same way.
+## API overview
 
-1. **Read `docs/API_CONTRACT.md` first.** It lists every endpoint, the exact response shapes, the error format, the validation rules and the seed data.
-2. **The mock code is your second spec.** Every function in `client/src/services/api.js` has a mock branch (`if (USE_MOCK)`) that shows the exact logic the matching endpoint needs: who is allowed to do it, which errors to return, and what must be deleted along with a post. Follow it function by function.
-3. **Data shapes** are also written as TypeScript interfaces in `client/src/types/models.ts`.
+All routes start with `/api`. Every route except signup, login and the health check needs a login token.
 
-Setup:
-- Clone the repository, then create a branch for your work: `git checkout -b feature/backend`
-- Put your code in a new `server/` folder next to `client/`. Do not edit `client/`.
-- Run the server on port **5000**, with all routes under `/api` (for example `http://localhost:5000/api/posts`).
-- Allow requests from `http://localhost:5173` (CORS).
-- Add a seed script that creates the sample data from the contract, including the moderator account.
-- Open Pull Requests into `main`, like the frontend does.
+| Area | Endpoints |
+| --- | --- |
+| Auth | `POST /auth/signup`, `POST /auth/login` |
+| Profile | `GET /users/me`, `PUT /users/me`, `GET /users/me/posts`, `GET /users/me/comments`, `GET /users/me/bookmarks` |
+| Posts | `GET /posts` (search, category, sort, pagination), `GET /posts/top`, `GET /posts/:id`, `POST /posts`, `PUT /posts/:id`, `DELETE /posts/:id` |
+| Comments | `GET /posts/:id/comments`, `POST /posts/:id/comments`, `PUT /comments/:id`, `DELETE /comments/:id` |
+| Reactions | `PUT /posts/:id/reaction`, `DELETE /posts/:id/reaction` |
+| Bookmarks | `PUT /posts/:id/bookmark`, `DELETE /posts/:id/bookmark` |
+| Reports | `POST /reports`, `GET /reports` (moderator), `PUT /reports/:id/hide` (moderator), `PUT /reports/:id/resolve` (moderator) |
+| Categories | `GET /categories`, `POST`, `PUT /:id`, `DELETE /:id` (moderator for changes) |
+| Notifications | `GET /notifications`, `PUT /notifications/:id/read` |
+| Announcements | `GET /announcements`, `POST`, `PUT /:id` (pin or unpin), `DELETE /:id` (moderator for changes) |
 
-Rules the server must enforce itself (hiding a button in the frontend is not enough):
-- Only the author may edit or delete their own post or comment.
-- Moderator endpoints (reports, categories, announcements) return 403 for students.
-- One like or dislike per user per post: use a unique rule on (user, post) in the database.
-- The signup endpoint always creates a student. It must ignore any `role` in the request.
-- Hidden posts and comments are not returned by any endpoint.
-- Validate every input on the server too, with the same limits as in the contract.
-- Data must survive a server restart.
-- Login uses a token: the frontend sends `Authorization: Bearer <token>`.
-
-To test with the real backend, set `VITE_USE_MOCK=false` in `client/.env`, start the server, and restart the frontend with `npm run dev`.
-
-## Documentation
-
-The backend API is described in [docs/API_CONTRACT.md](docs/API_CONTRACT.md).
+The exact request and response shapes are in [docs/API_CONTRACT.md](docs/API_CONTRACT.md).
 
 ## Git workflow
 
-Each feature is developed on its own branch and merged into `main` through a Pull Request.
+Each feature was developed on its own branch and merged into `main` through a Pull Request. The frontend and the backend were built by two team members on separate branches (`feature/...` and `feature/backend`).
 
 ## Disclaimer
 
